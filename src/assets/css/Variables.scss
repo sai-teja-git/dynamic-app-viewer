@@ -5,5 +5,7 @@
     --page-header-height: 50px;
     --page-body-height: calc(var(--page-height) - (var(--page-header-height) + 24px));
     --page-body-no-header-height: calc(100vh - (var(--page-height) + 24px));
-    --page-width: calc(100vw - (var(--page-padding) * 2))
+    --page-width: calc(100vw - (var(--page-padding) * 2));
+    --menu-base-width: 60px;
+    --menu-full-width: 230px;
 }

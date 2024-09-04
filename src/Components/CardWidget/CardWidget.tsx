@@ -1,16 +1,17 @@
-import { Card } from 'primereact/card';
-import "./CardWidget.scss"
 import { Button } from 'primereact/button';
-import { useEffect, useState } from 'react';
+import { Card } from 'primereact/card';
 import { Skeleton } from 'primereact/skeleton';
-import { generateRandom, generateRandomFloat } from '../../services/helper-functions.service';
+import { useEffect, useState } from 'react';
+import { cardService } from './card.service';
+import "./CardWidget.scss";
 
 interface ICardProps {
     type: string,
-    title: string
+    title: string,
+    id: string
 }
 
-export default function CardWidget({ type, title }: ICardProps) {
+export default function CardWidget({ type, title, id }: ICardProps) {
 
     const [loadKpiCard, setLoadKpiCard] = useState(false);
     const [kpiValue, setKpiValue] = useState<null | number>(null);
@@ -19,16 +20,18 @@ export default function CardWidget({ type, title }: ICardProps) {
         type === "KPI" && getKpiValue();
     }, [])
 
-    const getKpiValue = () => {
+    const getKpiValue = async () => {
         setLoadKpiCard(true);
-        setTimeout(() => {
-            setKpiValue(generateRandomFloat(10, 100))
-            setLoadKpiCard(false);
-        }, generateRandom(500, 1500))
+        await cardService.getKpiValue().then((res) => {
+            setKpiValue(res.data?.data ?? null)
+        }).catch(() => {
+            setKpiValue(null)
+        })
+        setLoadKpiCard(false);
     }
 
     return (
-        <div className="card">
+        <div className="card" id={id}>
             {
                 type === "DATA" ?
                     <Card title={title}>

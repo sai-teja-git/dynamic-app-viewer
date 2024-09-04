@@ -1,52 +1,30 @@
-import { ReactNode, useEffect, useState } from "react";
-import Chart from "../../Components/Chart/Chart";
-import Table from "../../Components/Table/Table";
-import GridLayout from "react-grid-layout";
-import "./MenuScreen.scss";
 import { ProgressSpinner } from "primereact/progressspinner";
-import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
-import NoData from "../../Components/NoData/NoData";
+import { ReactNode, useEffect, useState } from "react";
+import GridLayout from "react-grid-layout";
+import { useLocation } from "react-router-dom";
 import CardWidget from "../../Components/CardWidget/CardWidget";
-import { getMenuScreenById, getMenuScreens } from "./menu-screen-mapping.service";
+import Chart from "../../Components/Chart/Chart";
+import NoData from "../../Components/NoData/NoData";
+import Table from "../../Components/Table/Table";
+import { getMenuScreenById } from "./menu-screen-mapping.service";
+import "./MenuScreen.scss";
 
 export default function PageView() {
 
+    const location = useLocation();
     const [layout, setLayout] = useState<any[]>([]);
     const [layoutData, setLayoutData] = useState<Record<string, any>>({});
     const [apiLoader, setApiLoader] = useState(true);
-    const [menusLoader, setMenusLoader] = useState(true);
-    const [menus, setMenus] = useState<any[]>([]);
     const [selectedMenu, setMenu] = useState<any | null>(null);
 
 
     useEffect(() => {
-        getMenus()
-    }, [])
+        setMenu(location.state)
+    }, [location])
 
     useEffect(() => {
         getMenuLayout()
     }, [selectedMenu])
-
-    const getMenus = () => {
-        getMenuScreens().then(res => {
-            const data = res.data.data
-            setMenus(data)
-            setMenusLoader(false);
-            if (data.length) {
-                setMenu(data[0])
-            } else {
-                setLayout([])
-                setLayoutData({})
-                setApiLoader(false);
-            }
-        }).catch(() => {
-            setMenus([])
-            setLayout([])
-            setLayoutData({})
-            setMenusLoader(false);
-            setApiLoader(false);
-        })
-    }
 
     const getMenuLayout = () => {
         if (!selectedMenu) {
@@ -65,14 +43,14 @@ export default function PageView() {
         })
     }
 
-    const getNodeData = (_element: any, data: any) => {
+    const getNodeData = (data: any, id: string) => {
         const component = data?.selected?.data ?? {}
         if (component.type === "graph") {
-            return <Chart type={component.graph} />
+            return <Chart type={component.graph} id={id} />
         } else if (component.type === "table") {
-            return <Table />
+            return <Table id={id} />
         } else if (component.type === "card") {
-            return <CardWidget type={component.card} title={component.title} />
+            return <CardWidget type={component.card} title={component.title} id={id} />
         }
     }
 
@@ -82,7 +60,7 @@ export default function PageView() {
                 {
                     layoutData[e.i]?.selected ?
                         <>
-                            {getNodeData(e, layoutData[e.i])}
+                            {getNodeData(layoutData[e.i], e.i)}
                         </>
                         :
                         <>
@@ -97,13 +75,9 @@ export default function PageView() {
         <>
             <div className="page-header">
                 <div className="title">
-                    Screen View
+                    {selectedMenu?.name}
                 </div>
                 <div className="options">
-                    <div className="option">
-                        <Dropdown value={selectedMenu} onChange={(e: DropdownChangeEvent) => setMenu(e.value)} options={menus} optionLabel="name" checkmark={true}
-                            placeholder="Select Menu" className="w-full" loading={menusLoader} disabled={!menus.length} />
-                    </div>
                 </div>
             </div>
             <div className="page-body">
@@ -114,12 +88,12 @@ export default function PageView() {
                         :
                         <>
                             {
-                                (menus.length && layout.length) ?
-                                    <GridLayout className="layout" cols={12} rowHeight={50} width={screen.width - 32} layout={layout} isDraggable={false} isBounded={true} isDroppable={false} isResizable={false}>
+                                (layout.length) ?
+                                    <GridLayout className="layout" cols={12} rowHeight={50} width={screen.width - 80} layout={layout} isDraggable={false} isBounded={true} isDroppable={false} isResizable={false}>
                                         {...getElements()}
                                     </GridLayout> :
                                     <div className="col-12">
-                                        <NoData title="No Data" text="Menus Not Available" />
+                                        <NoData title="No Data" text="Data Not Available" />
                                     </div>
                             }
                         </>

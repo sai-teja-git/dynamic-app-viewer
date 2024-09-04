@@ -10,9 +10,16 @@ import 'primeicons/primeicons.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import 'primeflex/primeflex.css';
 import "./Main.scss"
+import { ProgressSpinner } from 'primereact/progressspinner'
+
+const progress = () => {
+  return <div className="h-screen w-full flex align-items-center justify-content-center">
+    <ProgressSpinner />
+  </div>
+}
 
 createRoot(document.getElementById('root')!).render(
-  <Suspense fallback={<div>Loading...</div>}>
+  <Suspense fallback={progress()}>
     <Toaster position='top-center' duration={1000} />
     <App />
   </Suspense>

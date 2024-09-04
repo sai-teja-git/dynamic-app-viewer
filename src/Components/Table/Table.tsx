@@ -5,7 +5,13 @@ import { Rating } from 'primereact/rating';
 import { Tag } from 'primereact/tag';
 import { useEffect, useState } from 'react';
 import { Skeleton } from 'primereact/skeleton';
-import { productService } from './product.service';
+import { tableService } from './table.service';
+import moment from "moment-timezone"
+import { toast } from 'sonner';
+
+interface ITableProps {
+    id: string
+}
 
 interface Product {
     id: string;
@@ -23,20 +29,24 @@ interface Product {
 /**
  * Common Table Component
  */
-export default function Table() {
+export default function Table({ id }: ITableProps) {
     const [products, setProducts] = useState<Product[]>([]);
-    const [loadTable, setLoadTable] = useState(true)
+    const [loadTable, setLoadTable] = useState(true);
+    const [lastUpdated, setLastUpdated] = useState("");
 
     useEffect(() => {
         getTableData()
     }, []);
 
-    const getTableData = () => {
+    const getTableData = async () => {
         setLoadTable(true)
-        productService.getProducts().then((data: any) => {
-            setProducts(data)
+        await tableService.tableData().then((res: any) => {
+            setProducts(res.data?.data ?? []);
             setLoadTable(false)
+        }).catch(() => {
+            setProducts([])
         });
+        setLastUpdated(moment().format("DD-MM-YYYY HH:mm:ss"))
     }
 
     const formatCurrency = (value: number) => {
@@ -71,10 +81,20 @@ export default function Table() {
         }
     };
 
+    const showInfo = () => {
+        toast.info(`Table Last Updated On : ${lastUpdated}`, {
+            duration: 2000,
+            id
+        });
+    }
+
     const header = (
         <div className="flex flex-wrap align-items-center justify-content-between gap-2">
             <span className="text-xl text-900 font-bold">Products</span>
-            <Button icon="pi pi-refresh" rounded raised onClick={getTableData} />
+            <div className='flex align-items-center'>
+                <Button label="Info" severity="info" onClick={showInfo} className="mr-2" size="small" />
+                <Button icon="pi pi-refresh" rounded raised onClick={getTableData} />
+            </div>
         </div>
     );
     const footer = `In total there are ${products ? products.length : 0} products.`;

@@ -4,23 +4,27 @@ import { Skeleton } from "primereact/skeleton";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { chartService } from "./chart.service";
+import moment from "moment-timezone"
 
 interface IChartProps {
     type: string,
+    id: string
 }
 
-export default function Chart({ type }: IChartProps) {
+export default function Chart({ type, id }: IChartProps) {
 
     const [loadChart, setLoadChart] = useState(true);
     const [chartOptions, setChartOptions] = useState<any>(null);
+    const [lastUpdated, setLastUpdated] = useState("");
 
     useEffect(() => {
         getChartData()
     }, []);
 
     const showInfo = () => {
-        toast.info("Message Content", {
-            duration: 1500
+        toast.info(`Chart Last Updated On : ${lastUpdated}`, {
+            duration: 2000,
+            id
         });
     }
 
@@ -51,9 +55,10 @@ export default function Chart({ type }: IChartProps) {
         }
     }
 
-    const getChartData = () => {
+    const getChartData = async () => {
         setLoadChart(true)
-        chartService.monthChartData().then((data: any) => {
+        await chartService.monthChartData().then((res: any) => {
+            const data = res.data?.data ?? [];
             const category = [];
             const seriesData = [];
             for (let item of data) {
@@ -66,6 +71,7 @@ export default function Chart({ type }: IChartProps) {
             setChartOptions(createChartObj(category, seriesData))
             setLoadChart(false)
         })
+        setLastUpdated(moment().format("DD-MM-YYYY HH:mm:ss"))
     }
 
     return (

@@ -2,6 +2,8 @@
     height: var(--page-height);
     padding: var(--page-padding);
     overflow: auto;
+    width: calc(100vw - var(--menu-base-width));
+    margin-left: var(--menu-base-width);
 
     .page-header {
         height: var(--page-header-height);
