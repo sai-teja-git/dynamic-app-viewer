@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react"
-import "./SideMenu.scss"
-import { getMenuScreens } from "../../Pages/MenuScreen/menu-screen-mapping.service"
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { getMenuScreens } from "../../Pages/MenuScreen/menu-screen-mapping.service";
+import "./SideMenu.scss";
 
 export default function SideMenu() {
 
